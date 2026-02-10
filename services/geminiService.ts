@@ -1,8 +1,9 @@
+
 import { GoogleGenAI, Type, GenerateContentResponse, FunctionDeclaration } from "@google/genai";
 import { MessageRole, GroundingSource, MCPTool } from "../types";
 
-// Updated to use process.env.API_KEY as per strict coding guidelines
-const getClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Updated to use process.env.GEMINI_API_KEY as requested
+const getClient = () => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function processPrompt(
   prompt: string,
@@ -53,7 +54,7 @@ export async function processPrompt(
   const toolCalls = response.functionCalls;
   const text = response.text || (toolCalls ? "Executing tools..." : "No response generated.");
   
-  // Map grounding chunks to GroundingSource interface to fix type error
+  // Map grounding chunks to GroundingSource interface
   const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
   const sources: GroundingSource[] = chunks.map(chunk => ({
     web: chunk.web ? {
