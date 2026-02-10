@@ -1,0 +1,23 @@
+
+{
+  "name": "omnisearch-ai",
+  "version": "1.0.0",
+  "description": "OmniSearch AI with Gemini Deep Thinking and MCP support",
+  "source": "index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
+  "dependencies": {
+    "@google/genai": "^0.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "events": "^3.3.0",
+    "parcel": "^2.13.0",
+    "process": "^0.11.10",
+    "tailwindcss": "^3.4.1"
+  }
+}

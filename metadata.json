@@ -1,0 +1,7 @@
+{
+  "name": "Copy of OmniSearch AI",
+  "description": "A sophisticated AI-powered search and transcription engine featuring deep thinking capabilities and real-time web grounding.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
