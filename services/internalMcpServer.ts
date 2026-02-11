@@ -1,15 +1,24 @@
 
 import { processPrompt, transcribeAudio } from './geminiService';
+import { ModelId, SearchMode } from '../types';
 
 export const OMNISEARCH_TOOL_SCHEMA = {
   name: "consult_omnisearch",
-  description: "Query the OmniSearch AI with deep thinking and web grounding capabilities. Returns text answer and sources.",
+  description: "Query the OmniSearch AI. capable of Standard or Deep Search using Gemini models.",
   inputSchema: {
     type: "object",
     properties: {
       query: { type: "string", description: "The user's question or prompt" },
-      use_thinking: { type: "boolean", description: "Enable deep thinking (reasoning-heavy, slower)" },
-      use_search: { type: "boolean", description: "Enable web search grounding" }
+      model: { 
+        type: "string", 
+        enum: ["gemini-3-pro-preview", "gemini-3-flash-preview"],
+        description: "The model to use. Default is gemini-3-pro-preview."
+      },
+      search_mode: { 
+        type: "string", 
+        enum: ["standard", "deep"],
+        description: "Search mode. 'deep' uses extensive reasoning (thinking) and research. 'standard' is faster."
+      }
     },
     required: ["query"]
   }
@@ -33,7 +42,6 @@ export class InternalMCPServer {
   }
 
   static async handleRequest(request: any) {
-    // Handle JSON-RPC structure loosely
     const method = request.method;
     const params = request.params || {};
 
@@ -45,14 +53,14 @@ export class InternalMCPServer {
       const { name, arguments: args } = params;
       
       if (name === 'consult_omnisearch') {
+        const model: ModelId = args.model || 'gemini-3-pro-preview';
+        const searchMode: SearchMode = args.search_mode || 'standard';
+
         const result = await processPrompt(args.query, {
-          useThinking: args.use_thinking ?? false,
-          useWebSearch: args.use_search ?? true
+          model,
+          searchMode,
         });
         
-        // Format response for MCP
-        // We include sources in the text or as a separate block if the client supports it.
-        // Standard MCP returns content list.
         let finalText = result.text;
         if (result.sources && result.sources.length > 0) {
             finalText += "\n\nSources:\n" + result.sources.map(s => s.web ? `- ${s.web.title}: ${s.web.uri}` : '').join('\n');
@@ -75,7 +83,6 @@ export class InternalMCPServer {
       throw new Error(`Unknown tool: ${name}`);
     }
     
-    // Simple Ping/Initialize support
     if (method === 'initialize') {
         return {
             protocolVersion: "0.1.0",

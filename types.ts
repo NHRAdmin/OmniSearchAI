@@ -18,7 +18,7 @@ export interface ChatMessage {
   text: string;
   timestamp: Date;
   sources?: GroundingSource[];
-  isThinking?: boolean;
+  isDeepSearch?: boolean; // Renamed from isThinking to be more specific to the feature
   toolInvocations?: ToolInvocation[];
 }
 
@@ -29,9 +29,12 @@ export interface ToolInvocation {
   status: 'calling' | 'success' | 'error';
 }
 
+export type ModelId = 'gemini-3-pro-preview' | 'gemini-3-flash-preview';
+export type SearchMode = 'standard' | 'deep';
+
 export interface AppState {
-  isThinkingMode: boolean;
-  isWebSearchEnabled: boolean;
+  model: ModelId;
+  searchMode: SearchMode;
   isRecording: boolean;
   messages: ChatMessage[];
   isLoading: boolean;

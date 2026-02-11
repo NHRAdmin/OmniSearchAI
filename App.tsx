@@ -1,6 +1,5 @@
-
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { AppState, ChatMessage, MessageRole, MCPServer, MCPTool } from './types';
+import React, { useState, useRef, useEffect } from 'react';
+import { AppState, ChatMessage, MessageRole, MCPServer, MCPTool, ModelId, SearchMode } from './types';
 import Header from './components/Header';
 import ChatBubble from './components/ChatBubble';
 import MCPManager from './components/MCPManager';
@@ -13,14 +12,14 @@ interface ExtendedAppState extends AppState {
 
 const App: React.FC = () => {
   const [state, setState] = useState<ExtendedAppState>({
-    isThinkingMode: false,
-    isWebSearchEnabled: true,
+    model: 'gemini-3-pro-preview', // Default as requested
+    searchMode: 'standard',
     isRecording: false,
     messages: [
       {
         id: 'initial',
         role: MessageRole.ASSISTANT,
-        text: "Hello! I'm OmniSearch AI. I support both incoming and outgoing MCP connections. Use the 'API' button to see how external models can control me, or 'MCP Tools' to connect me to other tools.",
+        text: "Hello! I'm OmniSearch AI. I am powered by Gemini 3. Choose 'Deep Search' for complex research tasks or 'Standard' for quick answers.",
         timestamp: new Date()
       }
     ],
@@ -66,15 +65,14 @@ const App: React.FC = () => {
       const externalTools = state.mcpServers.flatMap(s => s.tools.map(convertMCPToGemini));
 
       const response = await processPrompt(messageText, {
-        useThinking: state.isThinkingMode,
-        useWebSearch: state.isWebSearchEnabled,
+        model: state.model,
+        searchMode: state.searchMode,
         audioBase64: audioBase64,
         externalTools
       });
 
       let assistantText = response.text;
       
-      // If tool calls are present, we handle them (simplified mock execution for demonstration)
       if (response.toolCalls && response.toolCalls.length > 0) {
         const invocations = response.toolCalls.map(tc => ({
           toolName: tc.name,
@@ -92,7 +90,7 @@ const App: React.FC = () => {
         text: assistantText,
         timestamp: new Date(),
         sources: response.sources,
-        isThinking: state.isThinkingMode
+        isDeepSearch: state.searchMode === 'deep'
       };
 
       setState(prev => ({
@@ -100,12 +98,12 @@ const App: React.FC = () => {
         messages: [...prev.messages, assistantMsg],
         isLoading: false
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: MessageRole.ASSISTANT,
-        text: "I encountered an error. Please verify your connection and API configuration.",
+        text: `I encountered an error: ${error.message || 'Unknown error'}. Please verify your connection and API configuration.`,
         timestamp: new Date()
       };
       setState(prev => ({ ...prev, messages: [...prev.messages, errorMsg], isLoading: false }));
@@ -113,7 +111,6 @@ const App: React.FC = () => {
   };
 
   const addMCPServer = (name: string, url: string) => {
-    // Mock tools for demo if it's a new server
     const mockTools: MCPTool[] = [
       { name: 'get_weather', description: 'Fetch current weather for a location', inputSchema: { properties: { location: { type: 'string' } } } },
       { name: 'query_db', description: 'Run a read-only query against the local database', inputSchema: { properties: { query: { type: 'string' } } } }
@@ -198,8 +195,10 @@ const App: React.FC = () => {
           {state.isLoading && (
             <div className="flex justify-start mb-6">
               <div className="bg-slate-800 text-slate-400 px-4 py-3 rounded-2xl rounded-tl-none border border-slate-700 animate-pulse flex items-center gap-2">
-                <i className="fa-solid fa-circle-notch animate-spin text-blue-500"></i>
-                <span className="text-sm font-medium">Processing request...</span>
+                <i className={`fa-solid fa-circle-notch animate-spin ${state.searchMode === 'deep' ? 'text-purple-500' : 'text-blue-500'}`}></i>
+                <span className="text-sm font-medium">
+                  {state.searchMode === 'deep' ? 'Performing Deep Research (this may take a minute)...' : 'Processing request...'}
+                </span>
               </div>
             </div>
           )}
@@ -211,42 +210,65 @@ const App: React.FC = () => {
       <footer className="bg-slate-900 border-t border-slate-800 p-4 md:p-6 pb-8">
         <div className="max-w-4xl mx-auto flex flex-col gap-4">
           
-          {/* Toggles */}
-          <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start">
-            <button 
-              onClick={() => setState(p => ({ ...p, isWebSearchEnabled: !p.isWebSearchEnabled }))}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
-                state.isWebSearchEnabled 
-                  ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' 
-                  : 'bg-slate-800 text-slate-500 border-slate-700'
-              }`}
-            >
-              <i className="fa-brands fa-google"></i>
-              Web Search
-            </button>
+          {/* Controls */}
+          <div className="flex flex-wrap items-center gap-4 justify-center md:justify-between">
+            
+            <div className="flex items-center gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
+               <button 
+                onClick={() => setState(p => ({ ...p, model: 'gemini-3-pro-preview' }))}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                  state.model === 'gemini-3-pro-preview' 
+                    ? 'bg-slate-700 text-white shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+               >
+                 Gemini 3 Pro
+               </button>
+               <button 
+                onClick={() => setState(p => ({ ...p, model: 'gemini-3-flash-preview' }))}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                  state.model === 'gemini-3-flash-preview' 
+                    ? 'bg-slate-700 text-white shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+               >
+                 Flash
+               </button>
+            </div>
 
-            <button 
-              onClick={() => setState(p => ({ ...p, isThinkingMode: !p.isThinkingMode }))}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
-                state.isThinkingMode 
-                  ? 'bg-purple-500/10 text-purple-400 border-purple-500/30' 
-                  : 'bg-slate-800 text-slate-500 border-slate-700'
-              }`}
-            >
-              <i className="fa-solid fa-brain"></i>
-              Deep Thinking
-            </button>
+            <div className="flex items-center gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
+               <button 
+                onClick={() => setState(p => ({ ...p, searchMode: 'standard' }))}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${
+                  state.searchMode === 'standard' 
+                    ? 'bg-blue-600 text-white shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+               >
+                 <i className="fa-brands fa-google"></i> Standard
+               </button>
+               <button 
+                onClick={() => setState(p => ({ ...p, searchMode: 'deep' }))}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${
+                  state.searchMode === 'deep' 
+                    ? 'bg-purple-600 text-white shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+               >
+                 <i className="fa-solid fa-brain"></i> Deep Search
+               </button>
+            </div>
 
             <button 
               onClick={() => setState(p => ({ ...p, showMCPManager: true }))}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                 state.mcpServers.length > 0
                   ? 'bg-orange-500/10 text-orange-400 border-orange-500/30' 
                   : 'bg-slate-800 text-slate-500 border-slate-700'
               }`}
             >
               <i className="fa-solid fa-plug-circle-bolt"></i>
-              MCP Tools ({state.mcpServers.flatMap(s => s.tools).length})
+              MCP ({state.mcpServers.flatMap(s => s.tools).length})
             </button>
           </div>
 
@@ -270,7 +292,7 @@ const App: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder={state.isRecording ? "Listening..." : "Ask me anything, use tools via MCP..."}
+                placeholder={state.isRecording ? "Listening..." : "Ask OmniSearch..."}
                 disabled={state.isLoading || state.isRecording}
                 className="flex-1 bg-transparent border-none outline-none text-slate-200 py-2 px-1 placeholder:text-slate-500 disabled:opacity-50"
               />

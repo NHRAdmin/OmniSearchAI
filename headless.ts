@@ -1,4 +1,3 @@
-
 import { createInterface } from 'readline';
 import { InternalMCPServer } from './services/internalMcpServer';
 import dotenv from 'dotenv';
@@ -6,18 +5,18 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file
 dotenv.config();
 
-// Ensure GEMINI_API_KEY is present
-if (!process.env.GEMINI_API_KEY) {
-  console.error("Error: GEMINI_API_KEY is not set in environment variables.");
-  process.exit(1);
+// Ensure API_KEY is present
+if (!process.env.API_KEY) {
+  console.error("Error: API_KEY is not set in environment variables.");
+  (process as any).exit(1);
 }
 
 // Log startup to stderr so we don't pollute stdout (used for JSON-RPC)
 console.error("OmniSearch AI Headless MCP Server starting...");
 
 const rl = createInterface({
-  input: process.stdin,
-  output: process.stdout,
+  input: (process as any).stdin,
+  output: (process as any).stdout,
   terminal: false
 });
 

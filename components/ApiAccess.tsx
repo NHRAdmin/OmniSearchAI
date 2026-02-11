@@ -15,8 +15,8 @@ const ApiAccess: React.FC<ApiAccessProps> = ({ onClose }) => {
       name: "consult_omnisearch",
       arguments: {
         query: "Explain the latest advancements in quantum computing",
-        use_thinking: true,
-        use_search: true
+        model: "gemini-3-pro-preview",
+        search_mode: "deep"
       }
     },
     id: 1
@@ -49,7 +49,6 @@ const ApiAccess: React.FC<ApiAccessProps> = ({ onClose }) => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    // Could add toast notification here
   };
 
   return (
