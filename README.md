@@ -80,7 +80,7 @@ Handshake to establish connection and capabilities.
   "jsonrpc": "2.0",
   "method": "initialize",
   "params": {
-    "protocolVersion": "0.1.0",
+    "protocolVersion": "2024-11-05",
     "capabilities": {},
     "clientInfo": {
       "name": "client-name",

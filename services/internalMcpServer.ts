@@ -85,7 +85,7 @@ export class InternalMCPServer {
     
     if (method === 'initialize') {
         return {
-            protocolVersion: "0.1.0",
+            protocolVersion: "2024-11-05",
             serverInfo: {
                 name: "OmniSearch-Web-Client",
                 version: "1.0.0"
