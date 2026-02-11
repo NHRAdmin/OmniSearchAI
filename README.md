@@ -38,9 +38,9 @@ This application requires a Google GenAI API key.
     touch .env
     ```
 
-2.  Add your API Key to the `.env` file:
+2.  Add your API Key to the `.env` file using the variable name `OMNI_API_KEY`:
     ```env
-    GEMINI_API_KEY=your_actual_google_api_key_here
+    OMNI_API_KEY=your_actual_google_api_key_here
     ```
 
 ## Running the Web App
@@ -202,5 +202,5 @@ The output will be generated in the `dist/` directory.
 ## Troubleshooting
 
 - **Microphone issues**: Ensure your browser allows microphone access for localhost.
-- **API Errors**: Check the console. Verify your `GEMINI_API_KEY` in the `.env` file is valid and has access to `gemini-3-pro-preview` and `deep-research-pro-preview-12-2025` models.
+- **API Errors**: Check the console. Verify your `OMNI_API_KEY` in the `.env` file is valid and has access to `gemini-3-pro-preview` and `deep-research-pro-preview-12-2025` models.
 - **Headless Mode**: Ensure you are using Node.js v18+ for native `fetch` support, or the request might fail.

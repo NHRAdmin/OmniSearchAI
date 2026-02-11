@@ -6,8 +6,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Ensure API_KEY is present
-if (!process.env.API_KEY) {
-  console.error("Error: API_KEY is not set in environment variables.");
+if (!process.env.OMNI_API_KEY) {
+  console.error("Error: OMNI_API_KEY is not set in environment variables.");
   (process as any).exit(1);
 }
 

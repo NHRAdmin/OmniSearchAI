@@ -1,8 +1,8 @@
 import { GoogleGenAI, Type, GenerateContentResponse, FunctionDeclaration } from "@google/genai";
 import { MessageRole, GroundingSource, MCPTool, ModelId, SearchMode } from "../types";
 
-// Updated to use process.env.API_KEY
-const getClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Updated to use process.env.OMNI_API_KEY as requested
+const getClient = () => new GoogleGenAI({ apiKey: process.env.OMNI_API_KEY });
 
 export async function processPrompt(
   prompt: string,
@@ -87,8 +87,8 @@ export async function processPrompt(
  * This is more robust against SDK version mismatches for preview features.
  */
 async function performDeepResearch(prompt: string) {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) throw new Error("API Key missing");
+  const apiKey = process.env.OMNI_API_KEY;
+  if (!apiKey) throw new Error("OMNI_API_KEY missing");
 
   // Endpoint for the preview feature
   const baseUrl = "https://generativelanguage.googleapis.com/v1beta/interactions";
