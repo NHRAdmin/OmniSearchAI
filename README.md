@@ -1,11 +1,12 @@
 
 # OmniSearch AI
 
-OmniSearch AI is a cutting-edge interface leveraging Google's Gemini models. It features **Deep Thinking** (reasoning capabilities), **Web Grounding** (real-time search), **Voice Transcription**, and full **Model Context Protocol (MCP)** support for tool interoperability.
+OmniSearch AI is a cutting-edge interface leveraging Google's Gemini models. It features **Deep Research Agents**, **Web Grounding** (real-time search), **Voice Transcription**, and full **Model Context Protocol (MCP)** support for tool interoperability.
 
 ## Features
 
-- **Deep Thinking Mode**: Uses `gemini-3-pro-preview` with extended thinking budgets for complex reasoning.
+- **Deep Research Mode**: Utilizes the `deep-research-pro-preview-12-2025` agent to autonomously plan, execute, and synthesize multi-step research tasks.
+- **Standard Mode**: Fast, grounded answers using `gemini-3-pro-preview` or `gemini-3-flash-preview` with optional thinking capabilities.
 - **Web Search Grounding**: Real-time factual checks using Google Search tools.
 - **MCP Client & Server**:
   - Connect to external MCP servers to give the AI new tools (weather, database, etc.).
@@ -122,7 +123,7 @@ Retrieves the list of available tools exposed by OmniSearch AI.
     "tools": [
       {
         "name": "consult_omnisearch",
-        "description": "Query the OmniSearch AI...",
+        "description": "Query the OmniSearch AI. capable of Standard or Deep Search using Gemini models.",
         "inputSchema": { ... }
       },
       {
@@ -137,7 +138,7 @@ Retrieves the list of available tools exposed by OmniSearch AI.
 ```
 
 #### 4. Call Tool (`consult_omnisearch`)
-Queries the AI model. You can enable `use_thinking` for complex reasoning or `use_search` for web grounding.
+Queries the AI model. You can select the specific Gemini model and the search mode (Standard vs Deep).
 
 **Request:**
 ```json
@@ -147,14 +148,20 @@ Queries the AI model. You can enable `use_thinking` for complex reasoning or `us
   "params": {
     "name": "consult_omnisearch",
     "arguments": {
-      "query": "Who won the 2024 F1 championship?",
-      "use_search": true,
-      "use_thinking": false
+      "query": "Research the history of Google TPUs.",
+      "model": "gemini-3-pro-preview",
+      "search_mode": "deep"
     }
   },
   "id": 3
 }
 ```
+
+| Argument | Type | Description |
+| :--- | :--- | :--- |
+| `query` | string | The user's prompt or question. |
+| `model` | string | `gemini-3-pro-preview` (default) or `gemini-3-flash-preview`. |
+| `search_mode` | string | `standard` (default) or `deep`. Deep mode activates the Deep Research Agent. |
 
 #### 5. Call Tool (`transcribe_audio`)
 Transcribes base64-encoded audio data.
@@ -195,5 +202,5 @@ The output will be generated in the `dist/` directory.
 ## Troubleshooting
 
 - **Microphone issues**: Ensure your browser allows microphone access for localhost.
-- **API Errors**: Check the console. Verify your `GEMINI_API_KEY` in the `.env` file is valid and has access to `gemini-3-pro-preview` models.
+- **API Errors**: Check the console. Verify your `GEMINI_API_KEY` in the `.env` file is valid and has access to `gemini-3-pro-preview` and `deep-research-pro-preview-12-2025` models.
 - **Headless Mode**: Ensure you are using Node.js v18+ for native `fetch` support, or the request might fail.
